@@ -60,7 +60,7 @@ Empty@{shape: lean-r, label: "Empty battery toast"}
 Zero{Is battery = 0}
 Threshold{Is battery <= threshold?}
 Loop[Start main loop]
-Gemini[Create and show Gemini report - from data saved in local DB]
+Gemini@{shape: lean-r, label: 'Create and show Gemini report - from data saved in local DB'}
 LocalDB[Save JSON data to local sqlite DB]
 subgraph start [1. HA API call phase]
     Start --> TaskOn
