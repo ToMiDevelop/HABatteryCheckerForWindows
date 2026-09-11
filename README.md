@@ -85,7 +85,7 @@ subgraph optional [3.1. Optional system scheduled task removal]
     Gemini -.-> TaskOff
 end
 subgraph normal [3.2 Normal application halt]
-    TaskOff --> Stop
+    TaskOff -.-> Stop
     Gemini --> Stop
 end
 ```
