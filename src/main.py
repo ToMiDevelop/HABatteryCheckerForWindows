@@ -76,4 +76,4 @@ normalRun.geminiReport()
 
 
 # remove scheduled app process in Windows - uncomment bellow for testing purposes
-winprocess.remove_autostart()
+# winprocess.remove_autostart()
