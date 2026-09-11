@@ -86,9 +86,7 @@ subgraph optional [3.1. Optional system scheduled task removal]
 end
 subgraph normal [3.2 Normal application halt]
     TaskOff --> Stop
-    Empty --> Stop
-    Low --> Stop
-    Full --> Stop
+    Gemini --> Stop
 end
 ```
 ### Notes on scheduled system task
