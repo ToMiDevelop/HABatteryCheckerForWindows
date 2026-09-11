@@ -3,10 +3,9 @@ import subprocess
 import os
 
 
-def setup_autostart(task_name="HABatteryMonitor", interval_hours=1):
-    """Creates new task in system scheduler."""
+def setup_autostart(task_name="HABatteryMonitor"):
+    """Creates app Windows autostart task.."""
     exe_path = os.path.abspath(sys.argv[0])
-    # Check if task exists
     check_cmd = ["schtasks", "/Query", "/TN", task_name]
     result = subprocess.run(
         check_cmd,
@@ -14,18 +13,19 @@ def setup_autostart(task_name="HABatteryMonitor", interval_hours=1):
         text=True,
         shell=False,
         encoding="cp852",
-        errors="ignore"
+        errors="ignore",
     )
     if result.returncode != 0:
-        # Creating task
-        # arguments list takes care of spaces in path
         create_cmd = [
-            "schtasks", "/Create",
-            "/TN", task_name,
-            "/TR", exe_path,
-            "/SC", "HOURLY",
-            "/MO", str(interval_hours),
-            "/F"
+            "schtasks",
+            "/Create",
+            "/TN",
+            task_name,
+            "/TR",
+            exe_path,
+            "/SC",
+            "ONLOGON",  # Uruchomienie przy zalogowaniu
+            "/F",
         ]
         create_result = subprocess.run(
             create_cmd,
@@ -33,12 +33,12 @@ def setup_autostart(task_name="HABatteryMonitor", interval_hours=1):
             text=True,
             shell=False,
             encoding="cp852",
-            errors="ignore"
+            errors="ignore",
         )
         if create_result.returncode == 0:
-            print(f"Added task '{task_name}' to scheduler.")
+            print(f"Added '{task_name}' to autostartu (ONLOGON).")
         else:
-            print(f"Error while adding task: {create_result.stderr.strip()}")
+            print(f"Error creating task: {create_result.stderr.strip()}")
 
 
 def remove_autostart(task_name="HABatteryMonitor"):
