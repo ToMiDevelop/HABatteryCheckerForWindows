@@ -2,10 +2,21 @@ import os
 import markdown
 from pathlib import Path
 from messages import footers
+import sys
 
 class Reporter:
     def __init__(self, geminiResponse : str):
         self.markdownReport = geminiResponse
+
+    @staticmethod
+    def _get_base_dir() -> Path:
+        """Zwraca folder, w którym znajduje się plik .exe (lub main.py w trybie deweloperskim)."""
+        if getattr(sys, "frozen", False):
+            # Aplikacja uruchomiona jako .exe z PyInstallera
+            return Path(sys.executable).resolve().parent
+        else:
+            # Aplikacja uruchomiona z kodu źródłowego .py
+            return Path(__file__).resolve().parent
 
     def saveAnalysisToHml(self, outputPath: str = "reports\report.html") -> str:
         """
@@ -67,7 +78,7 @@ class Reporter:
 </html>"""
 
         # 1. Taking the path to the program folder
-        BASE_DIR = Path(__file__).resolve().parent
+        BASE_DIR = self._get_base_dir()
         # 2. Creating path to 'reports' next to program file
         reportsDir = BASE_DIR / "reports"
         reportsDir.mkdir(parents=True, exist_ok=True)

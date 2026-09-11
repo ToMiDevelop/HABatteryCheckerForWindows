@@ -98,6 +98,10 @@ class ConfigWindow(ctk.CTk):
         )
         self.save_button.pack(fill="x", padx=20, pady=(10, 20))
 
+    def on_close(self):
+        print("Closing app, config windows closed without usage...")
+        self.destroy()
+
     def save_config(self):
         ha_url = self.ha_url_entry.get().strip()
         ha_token = self.ha_token_entry.get().strip()

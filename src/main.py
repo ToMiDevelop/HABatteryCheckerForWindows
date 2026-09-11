@@ -6,7 +6,8 @@
 import urllib3
 from pathlib import Path
 from dotenv import load_dotenv
-import time
+import sys
+
 
 # custom imports
 
@@ -23,9 +24,20 @@ winprocess.setup_autostart()
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+# special helper function
+
+def get_base_dir() -> Path:
+    """Returns folder, in which .exe lies (or main.py in developer mode)."""
+    if getattr(sys, "frozen", False):
+        # Aplikacja uruchomiona jako .exe z PyInstallera
+        return Path(sys.executable).resolve().parent
+    else:
+        # Aplikacja uruchomiona z kodu źródłowego .py
+        return Path(__file__).resolve().parent
+
 # Check (for the app first run - and just in case of moving the app id hadbdata.db exists
 
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = get_base_dir()
 DATA_DIR = BASE_DIR / "data"
 DB_FILE = BASE_DIR / "data" / "hadbdata.db"
 ENV_FILE = BASE_DIR / "data" / "secrets.env"
@@ -46,6 +58,9 @@ envNotExists = not ENV_FILE.exists()
 if envNotExists:
     print("No secrets.env file - Launching config window...")
     configwindow.showConfigWindow(ENV_FILE)
+    if not ENV_FILE.exists():
+        print("No configuration saved, exiting app")
+        sys.exit(0)
 
 # Loading secrets from secrets.env
 

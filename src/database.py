@@ -7,6 +7,7 @@ from datetime import datetime
 from dataclasses import dataclass
 from pathlib import Path
 from typing import cast, Any
+import sys
 
 # Base class creation
 
@@ -80,9 +81,20 @@ class _RSSIClass:
 # Defining class which instance is going to be used in other code scripts
 
 class HADBData:
+
+    @staticmethod
+    def _get_base_dir() -> Path:
+        """Zwraca folder, w którym znajduje się plik .exe (lub main.py w trybie deweloperskim)."""
+        if getattr(sys, "frozen", False):
+            # Aplikacja uruchomiona jako .exe z PyInstallera
+            return Path(sys.executable).resolve().parent
+        else:
+            # Aplikacja uruchomiona z kodu źródłowego .py
+            return Path(__file__).resolve().parent
+
     def __init__(self):
         # taking path to program directory
-        baseDir = Path(__file__).resolve().parent
+        baseDir = self._get_base_dir()
         # creating path to "data" folder and making it (if does not exist)
         dbDir = baseDir / "data"
         dbDir.mkdir(parents = True, exist_ok = True)

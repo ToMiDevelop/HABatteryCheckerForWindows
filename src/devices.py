@@ -1,33 +1,29 @@
 devicesBatteryValueList = {
-    "Device 1 name": "battery sensor entity id for device 1",
-    "Device 2 name": "battery sensor entity id for device 2",
-    "Device 3 name": "battery sensor entity id for device 3",
-    # you can put as many devices you want to this dictionary
-    "Device n name": "battery sensor entity id for device n"
+    "Termometr w sypialni": "sensor.termometr_duzy_sypialnia_bateria",
+    "Termometr w salonie": "sensor.termometr_duzy_salon_bateria",
+    "Termometr od podwórka": "sensor.termometr_podworko_bateria",
+    "Termometr od drogi": "sensor.termometr_droga_bateria"
 }
 
 devicesBatteryTypeList = {
-    "Device 1 name": "battery sensor entity id for device 1",
-    "Device 2 name": "battery sensor entity id for device 2",
-    "Device 3 name": "battery sensor entity id for device 3",
-    # you can put as many devices you want to this dictionary
-    "Device n name": "battery sensor entity id for device n"
+    "Termometr w sypialni": "sensor.termometr_duzy_sypialnia_battery_type",
+    "Termometr w salonie": "sensor.termometr_duzy_salon_battery_type",
+    "Termometr od podwórka": "sensor.termometr_podworko_battery_type",
+    "Termometr od drogi": "sensor.termometr_droga_battery_type"
 }
 
 devicesLQIList = {
-    "Device 1 name": "battery sensor entity id for device 1",
-    "Device 2 name": "battery sensor entity id for device 2",
-    "Device 3 name": "battery sensor entity id for device 3",
-    # you can put as many devices you want to this dictionary
-    "Device n name": "battery sensor entity id for device n"
+    "Termometr w sypialni": "sensor.sonoff_snzb_02d_lqi_2",
+    "Termometr w salonie": "sensor.sonoff_snzb_02d_lqi",
+    "Termometr od podwórka": "sensor.termometr_podworko_lqi",
+    "Termometr od drogi": "sensor.termometr_droga_lqi"
 }
 
 devicesRSSIList = {
-    "Device 1 name": "battery sensor entity id for device 1",
-    "Device 2 name": "battery sensor entity id for device 2",
-    "Device 3 name": "battery sensor entity id for device 3",
-    # you can put as many devices you want to this dictionary
-    "Device n name": "battery sensor entity id for device n"
+    "Termometr w sypialni": "sensor.sonoff_snzb_02d_rssi_2",
+    "Termometr w salonie": "sensor.sonoff_snzb_02d_rssi",
+    "Termometr od podwórka": "sensor.termometr_podworko_rssi",
+    "Termometr od drogi": "sensor.termometr_droga_rssi"
 }
 
-batteryThreshold = Integer number
+batteryThreshold = 10
