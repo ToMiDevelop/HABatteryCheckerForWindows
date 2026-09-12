@@ -1,12 +1,20 @@
-import os
 import markdown
 from pathlib import Path
 from messages import footers
 import sys
+import os
 
 class Reporter:
-    def __init__(self, geminiResponse : str):
-        self.markdownReport = geminiResponse
+    def __init__(self, geminiResponse : list[str]):
+        self.modelName = os.getenv("GEMINI_MODEL_NAME")
+        self.markdownReport = ""
+        self.tokens = ""
+        if len(geminiResponse) > 1:
+            self.markdownReport = geminiResponse[0]
+            self.tokens = geminiResponse[1]
+        else:
+            self.markdownReport = geminiResponse[0]
+            self.tokens = footers["plTokensNone"]
 
     @staticmethod
     def _get_base_dir() -> Path:
@@ -18,14 +26,16 @@ class Reporter:
             # Aplikacja uruchomiona z kodu źródłowego .py
             return Path(__file__).resolve().parent
 
-    def saveAnalysisToHml(self, outputPath: str = "reports\report.html") -> str:
+    def saveAnalysisToHml(self) -> str:
         """
         Converts Markdown text received  from Gemini to a good looking HTML
         with special tailored dedicated CSS.
         """
+        # Process Gemini model name
+        if self.modelName is None:
+            self.modelName = "gemini-3.5-flash-lite"
         # Markdown to HTML (with tables)
         htmlContent = markdown.markdown(self.markdownReport, extensions=['tables', 'fenced_code'])
-
         # Elegant html file structure with Home Assistant (dark mode)
         fullHtml = f"""<!DOCTYPE html>
 <html lang="pl">
@@ -72,7 +82,8 @@ class Reporter:
 <body>
     {htmlContent}
     <div class="footer">
-        {footers["plFooter"]}
+        <p>{footers["plFooter"]}</p>
+        <p>{footers["plTokens"]}: {self.tokens} | Model LLM: {self.modelName}</p> 
     </div>
 </body>
 </html>"""

@@ -29,10 +29,8 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 def get_base_dir() -> Path:
     """Returns folder, in which .exe lies (or main.py in developer mode)."""
     if getattr(sys, "frozen", False):
-        # Aplikacja uruchomiona jako .exe z PyInstallera
         return Path(sys.executable).resolve().parent
     else:
-        # Aplikacja uruchomiona z kodu źródłowego .py
         return Path(__file__).resolve().parent
 
 # Check (for the app first run - and just in case of moving the app id hadbdata.db exists
@@ -87,8 +85,6 @@ else:
 
 print("Opening Gemini report...")
 normalRun.geminiReport()
-
-
 
 # remove scheduled app process in Windows - uncomment bellow for testing purposes
 # winprocess.remove_autostart()

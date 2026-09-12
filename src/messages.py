@@ -43,17 +43,22 @@ geminiPrompts = {
 }
 
 footers = {
-    "plFooter": "Raport wygenerowany automatycznie przez Home Assistant Battery Monitor z pomocą Google Gemini AI."
+    "plFooter": "Raport wygenerowany automatycznie przez Home Assistant Battery Monitor z pomocą Google Gemini AI.",
+    "plTokens": "Ilość tokenów zużytych w zapytaniu:",
+    "plTokensNone": "nieznane"
 }
 
 configWindow = {
-    "plTitle": "HA Battery Monitor - Pierwsze Uruchomienie",
+    "plTitle": "Monitor Baterii Home Assistant - Pierwsze Uruchomienie",
     "plMainHeaderText": "Konfiguracja Aplikacji",
-    "plMainHeaderSubLabelText": "Uzupełnij dane dostępowe, aby połączyć się z Home Assistant oraz Gemini API.",
+    "plMainHeaderSubLabelText": "Przed pierwszym uruchomieniem uzupełnij dane dostępowe.\nBez nich nie połączysz się z Home Assistant oraz Gemini API.",
     "plMAinHeaderHAIpText": "http://homeassistant.local:8123 lub IP",
     "plMainHeaderHALongLiveTokenText": "Długowieczny token dostępowy (Long-Lived Access Token)",
     "plMainHeaderAPIGeminiText": "Klucz API Gemini (AI Studio)",
+    "plMainHeaderGeminiModelText": "Nazwa modelu LLM (zalecany gemini-3.5-flash-lite)",
     "plSaveButtonText": "Zapisz konfigurację i uruchom",
     "plSimpleValidationText": "Wypełnij wszystkie pola przed zapisem!",
-    "plConfigSavedMessage": "Zapisano dane do pliku .env!"
+    "plConfigSavedMessage": "Zapisano dane do pliku .env!",
+    "plCreatedBy": "Stworzone przez ToMiDevelop",
+    "plDisclaimer": "UWAGA: Pierwsze uruchomienie aplikacji może trwać długo z powodu utworzenia lokalnej bazy danych oraz pierwszorazowego jej zasilenia."
 }
