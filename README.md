@@ -12,11 +12,11 @@ simple webview window).
 
 ## Screenshots
 
+![Config window](./pics/config.png)
+
 ![Example AI Report - part 1](./pics/report1.png)
 
 ![Example AI Report - part 2](./pics/report2.png)
-
-![Config window](./pics/config.png)
 
 ![Example toasts](./pics/toasts.png)
 
@@ -42,6 +42,9 @@ unique entity ids'.
 - ***mytoasts.py*** - operates custom Windows toast messages
 - ***reporter.py*** - handles extracting data from Gemini responses
 - ***reportsgui.py*** - handles showing Gemini reports data in a nice webview window as a styled html page
+
+There is also ***pics** folder containing a picture of the projects author - needed for the initial config window
+and must be kept next to source scripts or the created ***.exe*** file.
 
 ## Application logic schema
 
