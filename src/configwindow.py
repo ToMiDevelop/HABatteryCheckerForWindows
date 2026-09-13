@@ -6,6 +6,7 @@ from dotenv import set_key
 import webbrowser
 from PIL import Image, ImageDraw,ImageOps
 import sys
+import shutil
 
 # Custom imports
 
@@ -17,6 +18,48 @@ ctk.set_default_color_theme("blue")
 
 
 class ConfigWindow(ctk.CTk):
+
+    @staticmethod
+    def get_base_dir() -> Path:
+        if getattr(sys, 'frozen', False):
+            return Path(sys.executable).parent
+        else:
+            return Path(__file__).parent
+
+    def choose_and_copy_excel(self):
+        # Wywołanie okna dialogowego wyboru pliku
+        file_path = ctk.filedialog.askopenfilename(
+            title=f"{configWindow["plChooseFile"]}",
+            filetypes=[(f"{configWindow["plExcelType"]}", "*.xlsx"), (f"{configWindow["plAnyType"]}", "*.*")]
+        )
+
+        # Jeśli użytkownik anulował wybór
+        if not file_path:
+            return
+
+        source_path = Path(file_path)
+
+        # Określenie docelowego katalogu /data i ścieżki końcowej
+        data_dir = self.get_base_dir() / "data"
+        target_path = data_dir / "devices.xlsx"  # Lub source_path.name, jeśli chcesz zachować oryginalną nazwę
+
+        try:
+            # Tworzenie katalogu /data, jeśli nie istnieje
+            data_dir.mkdir(parents=True, exist_ok=True)
+
+            # Kopiowanie pliku (shutil.copy2 nadpisuje plik, jeśli już istnieje)
+            shutil.copy2(source_path, target_path)
+
+            # Aktualizacja statusu w oknie (jeśli masz label statusu)
+            self.status_label.configure(
+                text=f"{configWindow["PLFileOK"]}: {target_path.name}",
+                text_color="green"
+            )
+        except Exception as e:
+            self.status_label.configure(
+                text=f"{configWindow["plFileBAD"]}: {e}",
+                text_color="red"
+            )
 
     @staticmethod
     def resourcePath(relative_path: str) -> Path:
@@ -43,7 +86,7 @@ class ConfigWindow(ctk.CTk):
         self.title(f"{configWindow["plTitle"]}")
 
         # window geometry
-        self.geometry("650x690")
+        self.geometry("650x755") # Sometimes need to be adjusted
         self.resizable(False, False)
 
         # --- Main Header Section ---
@@ -117,6 +160,16 @@ class ConfigWindow(ctk.CTk):
             self, text="", text_color="red", font=ctk.CTkFont(size=12)
         )
         self.status_label.pack(pady=5)
+
+        # Save / Select Excel Button
+        self.excel_button = ctk.CTkButton(
+            self,
+            text="Wybierz i załaduj plik Excel z danymi urządzeń (.xlsx)",
+            command=self.choose_and_copy_excel,
+            height=40,
+            font=ctk.CTkFont(weight="bold"),
+        )
+        self.excel_button.pack(fill="x", padx=20, pady=(10, 5))
 
         # Save button
         self.save_button = ctk.CTkButton(

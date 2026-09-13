@@ -10,3 +10,4 @@ Markdown
 pywebview
 pywin32
 pyinstaller
+openpyxl

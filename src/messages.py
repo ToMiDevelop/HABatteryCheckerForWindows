@@ -1,4 +1,3 @@
-import devices
 
 # messages used in toasts and LLM prompts
 
@@ -27,7 +26,7 @@ geminiPrompts = {
     "- Danę są wklejone w prompt formie struktury json.\n\n"
     
     "ZASADY ANALIZY I WNIOSKOWANIA:\n"
-    f"1. STAN BATERII: Baterie z poziomem 'value' < {devices.batteryThreshold}% uznawaj za krytyczne (krytyczny poziom, rozładowanie w ~2 tygodnie).\n"
+    f"1. STAN BATERII: Baterie z poziomem 'value' < THRESHOLD_MARKER% uznawaj za krytyczne (krytyczny poziom, rozładowanie w ~2 tygodnie).\n"
     "2. DRENAŻ MESH: Urządzenia ze słabym LQI/RSSI (częste retransmisje i wysoka moc nadawania) drenują baterię znacznie szybciej. "
     "Wskaż urządzenia, których położenie w sieci pogarsza żywotność ogniwa.\n\n"
     
@@ -51,7 +50,7 @@ footers = {
 configWindow = {
     "plTitle": "Monitor Baterii Home Assistant - Pierwsze Uruchomienie",
     "plMainHeaderText": "Konfiguracja Aplikacji",
-    "plMainHeaderSubLabelText": "Przed pierwszym uruchomieniem uzupełnij dane dostępowe.\nBez nich nie połączysz się z Home Assistant oraz Gemini API.",
+    "plMainHeaderSubLabelText": "Przed pierwszym uruchomieniem uzupełnij dane dostępowe.\nBez nich nie połączysz się z Home Assistant oraz Gemini API.\nMusisz także wybrać arkusz z danymi urządzeń",
     "plMAinHeaderHAIpText": "http://homeassistant.local:8123 lub IP",
     "plMainHeaderHALongLiveTokenText": "Długowieczny token dostępowy (Long-Lived Access Token)",
     "plMainHeaderAPIGeminiText": "Klucz API Gemini (AI Studio)",
@@ -60,5 +59,10 @@ configWindow = {
     "plSimpleValidationText": "Wypełnij wszystkie pola przed zapisem!",
     "plConfigSavedMessage": "Zapisano dane do pliku .env!",
     "plCreatedBy": "Stworzone przez ToMiDevelop",
-    "plDisclaimer": "UWAGA: Pierwsze uruchomienie aplikacji może trwać długo z powodu utworzenia lokalnej bazy danych oraz pierwszorazowego jej zasilenia."
+    "plDisclaimer": "UWAGA: Pierwsze uruchomienie aplikacji może trwać długo z powodu utworzenia lokalnej bazy danych oraz pierwszorazowego jej zasilenia.",
+    "plChooseFile": "Wybierz arkusz kalkulacyjny z danymi urządzeń",
+    "plExcelType": "Arkusz Escel",
+    "plAnyType": "Wszystkie pliki",
+    "plFileOK": "Pomyślnie skioiowano wybrany plik do",
+    "plFileBAD": "Błąd podczas kopiowania pliku"
 }

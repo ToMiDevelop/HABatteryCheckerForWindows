@@ -67,10 +67,99 @@ of the following files:
 The **`pics`** folder contains the application author's avatar image, used in
 the initial configuration window.
 
-## Application logic overview
+## Application usage and running logic overview
+
+### Data preparation
+
+To use the application you need to prepare these:
+- ***Home Assistant URL*** - can be found in your web browser.
+- ***Home Assistant long-lived access token*** - to be generated in users security settings.
+- ***Gemini API Key*** - can be created in [Google AI studio](https://aistudio.google.com/), even a free tier plan is
+completely ok.
+- ***LLM model name*** - one of the names of models supported by Gemini API. If using free plans `gemini-3.5-flash-lite`
+is highly recommended.
+- ***HA devices configuration spreadsheet*** - a xlsx spreadsheet with a strict logic containing 5 sheets and only 2 data columns
+in each sheet. More details can be read bellow.
+
+### HA devices configuration spreadsheet
+
+This spreadsheet is an ordinary xlsx spreadsheet. Can be created directly in Microsoft Excel or in any other office
+software supporting the xlsx file format.
+
+The spreadsheet should contain only 5 sheets with EXACTLY these names:
+- `devicesBatteryValueList`
+- `devicesBatteryTypeList`
+- `devicesLQIList`
+- `devicesRSSIList`
+- `batteryThreshold`
+
+#### Sheets structure
+
+##### 1. `devicesBatteryValueList`
+
+| Device name   | Device battery % value entity id |
+|---------------|----------------------------------|
+| Devoce 1 name | Device 1 battery value entity id |
+| Devoce 2 name | Device 2 battery value entity id |
+| Devoce 3 name | Device 3 battery value entity id |
+| ...           | ...                              |
+| Devoce n name | Device n battery value entity id |
+
+##### 2. `devicesBatteryTypeList`
+
+| Device name   | Device battery type entity id         |
+|---------------|---------------------------------------|
+| Devoce 1 name | Device 1 battery type value entity id |
+| Devoce 2 name | Device 2 battery type value entity id |
+| Devoce 3 name | Device 3 battery type value entity id |
+| ...           | ...                                   |
+| Devoce n name | Device n battery type value entity id |
+
+##### 3. `devicesLQIList`
+
+| Device name   | Device LQI entity id   |
+|---------------|------------------------|
+| Devoce 1 name | Device 1 LQI entity id |
+| Devoce 2 name | Device 2 LQI entity id |
+| Devoce 3 name | Device 3 LQI entity id |
+| ...           | ...                    |
+| Devoce n name | Device n LQI entity id |
+
+##### 4. `devicesRSSIList`
+
+| Device name   | Device RSSI entity id   |
+|---------------|-------------------------|
+| Devoce 1 name | Device 1 RSSI entity id |
+| Devoce 2 name | Device 2 RSSI entity id |
+| Devoce 3 name | Device 3 RSSIentity id  |
+| ...           | ...                     |
+| Devoce n name | Device n RSSI entity id |
+
+##### 5. `batteryThreshold`
+
+| Parameter name   | Value                |
+|------------------|----------------------|
+| batteryThreshold | Integer number value |
+
+#### Spreadsheets name
+
+The name of the spreadsheet must be EXACTLY this:`devices.xlsx`
+
+#### Spreadsheet example
+
+And example of the spreadsheet can be found in `examples` folder - direct [link](/examples/devices.xlsx).
+
+### Usage
+
+Just download the latest release and open the `.exe` file. Remember to save in some kind of reasonable place. 
+
+### Whole process overview
 
 ```mermaid
 graph TD
+HAApi@{shape: lean-l, label: "Prepare Home Assistant URL and long-lived access token"}
+GeminiApi@{shape: lean-l, label: "Prepare Gemini API key"}
+Excel@{shape: lean-l, label: "Prepare HA devices configuration spreadsheet"}
 Start((Application start))
 Stop((Application stop))
 TaskOn[Register autostart entry]
@@ -86,7 +175,15 @@ Threshold{Is battery <= threshold?}
 Loop[Start main loop]
 Gemini@{shape: lean-r, label: "Generate and display Gemini report from data stored in the local database"}
 LocalDB[Save JSON response to the local SQLite database]
+subgraph preparation [0. Data preparation phase]
+    GeminiApi
+    Excel
+    HAApi
+end
 subgraph start [1. Home Assistant API call phase]
+    GeminiApi --> Start
+    Excel --> Start
+    HAApi --> Start
     Start --> TaskOn
     TaskOn --> ConstructRequest
     ConstructRequest -->|HTTP request| Api
@@ -150,142 +247,37 @@ need to install a subset of them, or if you're troubleshooting a missing
 dependency (module names used in `import` statements are not always
 identical to their PyPI package names).
 
-| Import name(s)                     | Install with `pip install ...` |  Notes                                            |
-|-------------------------------------|--------------------------------|---------------------------------------------------|
-| `requests`                          | `requests`                     |                                                   |
-| `windows_toasts`                    | `windows-toasts`               |                                                   |
-| `urllib3`                           | `urllib3`                      | Typically installed as a dependency of `requests` |
-| `sqlalchemy`                        | `SQLAlchemy`                   |                                                   |
-| `google`, `google.genai`            | `google-genai`                 |                                                   |
-| `customtkinter`                     | `customtkinter`                |                                                   |
-| `PIL` (used in `configwindow.py`)   | `Pillow`                       |                                                   |
-| `dotenv`                            | `python-dotenv`                |                                                   |
-| `markdown`                          | `Markdown`                     |                                                   |
-| `webview`                           | `pywebview`                    |                                                   |
-| `win32com`                          | `pywin32`                      | Used for Task Scheduler autostart registration    |
+| Import name(s)                    | Install with `pip install ...` | Notes                                             |
+|-----------------------------------|--------------------------------|---------------------------------------------------|
+| `requests`                        | `requests`                     |                                                   |
+| `windows_toasts`                  | `windows-toasts`               |                                                   |
+| `urllib3`                         | `urllib3`                      | Typically installed as a dependency of `requests` |
+| `sqlalchemy`                      | `SQLAlchemy`                   |                                                   |
+| `google`, `google.genai`          | `google-genai`                 |                                                   |
+| `customtkinter`                   | `customtkinter`                |                                                   |
+| `PIL` (used in `configwindow.py`) | `Pillow`                       |                                                   |
+| `dotenv`                          | `python-dotenv`                |                                                   |
+| `markdown`                        | `Markdown`                     |                                                   |
+| `webview`                         | `pywebview`                    |                                                   |
+| `win32com`                        | `pywin32`                      | Used for Task Scheduler autostart registration    |
+| `openpyxl`                        | `openpyxl`                     | Used to process Excel spreadsheets                |
 
 The following modules are part of the Python standard library and do **not**
 require a separate `pip install`:
 
-`sys`, `subprocess`, `os`, `json`, `dataclasses`, `pathlib`, `datetime`,
-`typing`.
+`sys`, `subprocess`, `os`, `json`, `dataclasses`, `pathlib`, `datetime`, `shutil`, `typing`.
 
-## Customizing the application for your setup
+## Customizing the application for your needs
 
-To adapt the application to your own Home Assistant instance, edit the
-`devices.py` script.
+To customize the application to your specific needs feel free to clone this repository and go on with coding :)
+As the author of this project I'm open your contributions to this repo - especially with translations to other
+languages.
 
-### Observed devices
+At this point all the GUI messages are shown in Polish. If you wish to help just go on, contact or just
+translate the messages which can be found in `messages.py` and create a merge request into the dev branch of this
+repository.
 
-#### Battery percentage
-
-```python
-devicesBatteryValueList = {
-    "Device 1 name": "battery sensor entity id for device 1",
-    "Device 2 name": "battery sensor entity id for device 2",
-    "Device 3 name": "battery sensor entity id for device 3",
-    # add as many devices as you need
-    "Device n name": "battery sensor entity id for device n"
-}
-```
-
-Build your own dictionary — only the entity IDs need to be taken from Home
-Assistant. Device names can be anything you like. See the example below.
-
-#### Battery percentage – example
-
-```python
-devicesBatteryValueList = {
-    "Bedroom thermometer": "sensor.bedroom_thermometer_battery",
-    "Living room thermometer": "sensor.living_room_thermometer_battery",
-    "Backyard thermometer": "sensor.backyard_thermometer_battery",
-    "Roadside thermometer": "sensor.roadside_thermometer_battery"
-}
-```
-
-#### Battery type
-
-```python
-devicesBatteryTypeList = {
-    "Device 1 name": "battery type sensor entity id for device 1",
-    "Device 2 name": "battery type sensor entity id for device 2",
-    "Device 3 name": "battery type sensor entity id for device 3",
-    # add as many devices as you need
-    "Device n name": "battery type sensor entity id for device n"
-}
-```
-
-#### Battery type – example
-
-```python
-devicesBatteryTypeList = {
-    "Bedroom thermometer": "sensor.bedroom_thermometer_battery_type",
-    "Living room thermometer": "sensor.living_room_thermometer_battery_type",
-    "Backyard thermometer": "sensor.backyard_thermometer_battery_type",
-    "Roadside thermometer": "sensor.roadside_thermometer_battery_type"
-}
-```
-
-#### Device LQI values
-
-```python
-devicesLQIList = {
-    "Device 1 name": "LQI sensor entity id for device 1",
-    "Device 2 name": "LQI sensor entity id for device 2",
-    "Device 3 name": "LQI sensor entity id for device 3",
-    # add as many devices as you need
-    "Device n name": "LQI sensor entity id for device n"
-}
-```
-
-#### Device LQI values – example
-
-```python
-devicesLQIList = {
-    "Bedroom thermometer": "sensor.sonoff_snzb_02d_lqi_2",
-    "Living room thermometer": "sensor.sonoff_snzb_02d_lqi",
-    "Backyard thermometer": "sensor.backyard_thermometer_lqi",
-    "Roadside thermometer": "sensor.roadside_thermometer_lqi"
-}
-```
-
-#### Device RSSI values
-
-```python
-devicesRSSIList = {
-    "Device 1 name": "RSSI sensor entity id for device 1",
-    "Device 2 name": "RSSI sensor entity id for device 2",
-    "Device 3 name": "RSSI sensor entity id for device 3",
-    # add as many devices as you need
-    "Device n name": "RSSI sensor entity id for device n"
-}
-```
-
-#### Device RSSI values – example
-
-```python
-devicesRSSIList = {
-    "Bedroom thermometer": "sensor.sonoff_snzb_02d_rssi_2",
-    "Living room thermometer": "sensor.sonoff_snzb_02d_rssi",
-    "Backyard thermometer": "sensor.backyard_thermometer_rssi",
-    "Roadside thermometer": "sensor.roadside_thermometer_rssi"
-}
-```
-
-#### Battery threshold
-
-```python
-batteryThreshold = IntegerNumber
-```
-
-The battery threshold defines the cutoff percentage below which a battery
-level is treated as critically low.
-
-#### Battery threshold – example
-
-```python
-batteryThreshold = 10
-```
+In case of any contributions to the project feel free to contact me over email: ***ToMiDevelop@outlook.com***.
 
 ## Security considerations
 
