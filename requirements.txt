@@ -1,0 +1,12 @@
+requests
+windows-toasts
+urllib3
+SQLAlchemy
+google-genai
+customtkinter
+Pillow
+python-dotenv
+Markdown
+pywebview
+pywin32
+pyinstaller

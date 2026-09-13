@@ -18,7 +18,7 @@ import configwindow
 
 # launch scheduled app process in Windows
 
-winprocess.setup_autostart()
+winprocess.setupAutostart()
 
 # disable invalid certificate warnings - app used in my local controlled home lab
 

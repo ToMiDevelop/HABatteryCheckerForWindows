@@ -18,19 +18,23 @@ ctk.set_default_color_theme("blue")
 
 class ConfigWindow(ctk.CTk):
 
+    @staticmethod
+    def resourcePath(relative_path: str) -> Path:
+        """Returns the path to a resource embedded in the .exe (PyInstaller --onefile)
+        or to the source file in development mode."""
+        if hasattr(sys, "_MEIPASS"):
+            # noinspection PyProtectedMember
+            base_path = Path(sys._MEIPASS)
+        else:
+            base_path = Path(__file__).resolve().parent
+        PATH_TO_RETURN = base_path / relative_path
+        return PATH_TO_RETURN
+
     def __init__(self, env_path: Path):
         super().__init__()
 
         # obtaining base dir and setting author.png path
-        self.BASE_DIR : Path = Path("")
-        if getattr(sys, "frozen", False):
-            # App running as .exe from PyInstaller
-            self.BASE_DIR = Path(sys.executable).resolve().parent
-        else:
-            # App running from source code .py
-            self.BASE_DIR = Path(__file__).resolve().parent
-        self.PICS_DIR = self.BASE_DIR / "pics"
-        self.AUTH_DIR = self.PICS_DIR / "author.png"
+        self.AUTH_DIR = self.resourcePath("pics/author.png")
 
         # env path variable
         self.env_path = env_path
@@ -154,7 +158,7 @@ class ConfigWindow(ctk.CTk):
         self.disclaimer_label.pack(fill='x', padx=20, pady=(15, 20))
 
     @staticmethod
-    def open_author_site(self, event=None):
+    def open_author_site(event=None):
         webbrowser.open_new_tab("https://tomidevelop.github.io")
 
     @staticmethod
