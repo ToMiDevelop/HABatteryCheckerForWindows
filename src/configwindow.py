@@ -27,7 +27,8 @@ class ConfigWindow(ctk.CTk):
             base_path = Path(sys._MEIPASS)
         else:
             base_path = Path(__file__).resolve().parent
-        return base_path / relative_path
+        PATH_TO_RETURN = base_path / relative_path
+        return PATH_TO_RETURN
 
     def __init__(self, env_path: Path):
         super().__init__()

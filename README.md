@@ -113,8 +113,7 @@ subgraph normal [3.2 Normal application shutdown]
     Gemini --> Stop
 end
 ```
-
-### Notes on the autostart mechanism
+## Notes on the autostart mechanism
 
 The application registers itself for autostart through the Windows Task
 Scheduler, using the `pywin32` COM API (`Schedule.Service`). A task is
