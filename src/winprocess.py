@@ -1,103 +1,74 @@
-import subprocess
-import os
+# main imports
+
 import sys
 from pathlib import Path
+import win32com.client
 
-def setup_autostart(app_name="HABatteryMonitor"):
-    """Dodaje plik wykonywalny do systemowego folderu Autostart użytkownika."""
-    # Ścieżka do folderu shell:startup
-    startup_dir = Path(os.environ["APPDATA"]) / "Microsoft" / "Windows" / "Start Menu" / "Programs" / "Startup"
-    bat_path = startup_dir / f"{app_name}.bat"
+# COM API task name
 
-    # Wyznaczamy ścieżkę do .exe (lub skryptu .py w trybie dev)
+TASK_NAME = "HABatteryMonitor"
+
+# Constant COM - from Task Scheduler API documentation
+_TASK_TRIGGER_LOGON = 9
+_TASK_ACTION_EXEC = 0
+_TASK_CREATE_OR_UPDATE = 6
+_TASK_LOGON_INTERACTIVE_TOKEN = 3
+
+# Function to obtain produced exe path
+
+def _getExePath() -> Path:
     if getattr(sys, "frozen", False):
-        exe_path = Path(sys.executable).resolve()
-    else:
-        exe_path = Path(__file__).resolve()
+        return Path(sys.executable).resolve()
+    return Path(sys.argv[0]).resolve()
 
-    # Tworzymy plik .bat uruchamiający aplikację
-    if not bat_path.exists():
-        try:
-            with open(bat_path, "w", encoding="utf-8") as f:
-                f.write(f'@start "" "{exe_path}"\n')
-            print(f"Pomyślnie dodano {app_name} do Autostartu użytkownika.")
-        except Exception as e:
-            print(f"Błąd podczas dodawania do autostartu: {e}")
+# Function to add exe file to autostart
 
-def remove_autostart(app_name="HABatteryMonitor"):
-    """Usuwa plik uruchomieniowy z folderu Autostart użytkownika."""
-    startup_dir = Path(os.environ["APPDATA"]) / "Microsoft" / "Windows" / "Start Menu" / "Programs" / "Startup"
-    bat_path = startup_dir / f"{app_name}.bat"
+def setupAutostart(task_name: str = TASK_NAME) -> None:
+    """
+    Creates a Windows Task Scheduler task (to run at logon) and, if it already exists,
+    updates its path to the current .exe location.
+    Call this on every app startup so that if the file is moved,
+    the task path will automatically be "fixed" on the next launch.
+    """
+    exe_path = _getExePath()
 
-    if bat_path.exists():
-        try:
-            bat_path.unlink()
-            print(f"Usunięto '{app_name}' z folderu Autostart.")
-        except Exception as e:
-            print(f"Błąd podczas usuwania wpisu z autostartu: {e}")
-    else:
-        print(f"Wpis '{app_name}' nie istnieje w folderze Autostart.")
+    scheduler = win32com.client.Dispatch("Schedule.Service")
+    scheduler.Connect()
+    root_folder = scheduler.GetFolder("\\")
 
-# def setup_autostart(task_name="HABatteryMonitor"):
-#     """Creates app Windows autostart task.."""
-#     exe_path = os.path.abspath(sys.argv[0])
-#     check_cmd = ["schtasks", "/Query", "/TN", task_name]
-#     result = subprocess.run(
-#         check_cmd,
-#         capture_output=True,
-#         text=True,
-#         shell=False,
-#         encoding="cp852",
-#         errors="ignore",
-#     )
-#     if result.returncode != 0:
-#         create_cmd = [
-#             "schtasks",
-#             "/Create",
-#             "/TN",
-#             task_name,
-#             "/TR",
-#             exe_path,
-#             "/SC",
-#             "ONLOGON",  # Uruchomienie przy zalogowaniu
-#             "/F",
-#         ]
-#         create_result = subprocess.run(
-#             create_cmd,
-#             capture_output=True,
-#             text=True,
-#             shell=False,
-#             encoding="cp852",
-#             errors="ignore",
-#         )
-#         if create_result.returncode == 0:
-#             print(f"Added '{task_name}' to autostartu (ONLOGON).")
-#         else:
-#             print(f"Error creating task: {create_result.stderr.strip()}")
+    task_def = scheduler.NewTask(0)
 
+    trigger = task_def.Triggers.Create(_TASK_TRIGGER_LOGON)
+    trigger.Enabled = True
 
-# def remove_autostart(task_name="HABatteryMonitor"):
-#     """Deletes task from Windows schedule"""
-#     check_cmd = ["schtasks", "/Query", "/TN", task_name]
-#     result = subprocess.run(
-#         check_cmd,
-#         capture_output=True,
-#         text=True,
-#         shell=False,
-#         encoding="cp852",
-#         errors="ignore"
-#     )
-#     if result.returncode == 0:
-#         # Task exists - let's delete it
-#         delete_cmd = ["schtasks", "/Delete", "/TN", task_name, "/F"]
-#         subprocess.run(
-#             delete_cmd,
-#             capture_output=True,
-#             text=True,
-#             shell=False,
-#             encoding="cp852",
-#             errors="ignore"
-#         )
-#         print(f"Deleted task '{task_name}' from scheduler.")
-#     else:
-#         print(f"Task '{task_name}' does not exist and was not deleted.")
+    action = task_def.Actions.Create(_TASK_ACTION_EXEC)
+    action.Path = str(exe_path)
+    action.WorkingDirectory = str(exe_path.parent)
+
+    task_def.RegistrationInfo.Description = "HA Battery Monitor - autostart"
+    task_def.Settings.Enabled = True
+    task_def.Settings.StopIfGoingOnBatteries = False
+    task_def.Settings.DisallowStartIfOnBatteries = False
+    task_def.Settings.StartWhenAvailable = True
+
+    root_folder.RegisterTaskDefinition(
+        task_name,
+        task_def,
+        _TASK_CREATE_OR_UPDATE,
+        "",  # empty user entry = current logged-in user
+        "",  # without password
+        _TASK_LOGON_INTERACTIVE_TOKEN,
+    )
+    print(f"Zadanie '{task_name}' zarejestrowane/zaktualizowane: {exe_path}")
+
+# Function to remove exe app from autostart
+
+def removeAutostart(task_name: str = TASK_NAME) -> None:
+    scheduler = win32com.client.Dispatch("Schedule.Service")
+    scheduler.Connect()
+    root_folder = scheduler.GetFolder("\\")
+    try:
+        root_folder.DeleteTask(task_name, 0)
+        print(f"Usunięto zadanie '{task_name}'.")
+    except Exception:
+        print(f"Zadanie '{task_name}' nie istnieje.")
