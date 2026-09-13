@@ -151,19 +151,19 @@ need to install a subset of them, or if you're troubleshooting a missing
 dependency (module names used in `import` statements are not always
 identical to their PyPI package names).
 
-| Import name(s)                     | Install with `pip install ...`   | Notes                                   |
-|-------------------------------------|-----------------------------------|------------------------------------------|
-| `requests`                          | `requests`                        |                                          |
-| `windows_toasts`                    | `windows-toasts`                  |                                          |
-| `urllib3`                           | `urllib3`                         | Typically installed as a dependency of `requests` |
-| `sqlalchemy`                        | `SQLAlchemy`                      |                                          |
-| `google`, `google.genai`            | `google-genai`                    |                                          |
-| `customtkinter`                     | `customtkinter`                   |                                          |
-| `PIL` (used in `configwindow.py`)   | `Pillow`                          |                                          |
-| `dotenv`                            | `python-dotenv`                   |                                          |
-| `markdown`                          | `Markdown`                        |                                          |
-| `webview`                           | `pywebview`                       |                                          |
-| `win32com`                          | `pywin32`                         | Used for Task Scheduler autostart registration |
+| Import name(s)                     | Install with `pip install ...` |  Notes                                            |
+|-------------------------------------|--------------------------------|---------------------------------------------------|
+| `requests`                          | `requests`                     |                                                   |
+| `windows_toasts`                    | `windows-toasts`               |                                                   |
+| `urllib3`                           | `urllib3`                      | Typically installed as a dependency of `requests` |
+| `sqlalchemy`                        | `SQLAlchemy`                   |                                                   |
+| `google`, `google.genai`            | `google-genai`                 |                                                   |
+| `customtkinter`                     | `customtkinter`                |                                                   |
+| `PIL` (used in `configwindow.py`)   | `Pillow`                       |                                                   |
+| `dotenv`                            | `python-dotenv`                |                                                   |
+| `markdown`                          | `Markdown`                     |                                                   |
+| `webview`                           | `pywebview`                    |                                                   |
+| `win32com`                          | `pywin32`                      | Used for Task Scheduler autostart registration    |
 
 The following modules are part of the Python standard library and do **not**
 require a separate `pip install`:
@@ -325,14 +325,24 @@ virtual environment. Otherwise, install it separately with:
 ```
 python -m pip install pyinstaller
 ```
+### Cloning repository
+
+This project assumes you've got `git` installed and configured in your Windows system. If you are new to `git`
+please visit its [website](https://git-scm.com/) and install it accordingly to the documentation.
+
+To clone this projects repository run the following command in a folder of your choice:
+
+```
+git clone https://github.com/ToMiDevelop/HABatteryCheckerForWindows.git
+```
+It will created a new folder named exactly as the repository. Please move to in the terminal and follow next steps.
 
 ### Build command
 
-Run the following command from the directory containing the Python source
-files:
+Run the following command from the directory containing cloned repository:
 
 ```
-pyinstaller --noconsole --onefile --name "HA Battery Monitor" src/main.py
+pyinstaller --noconsole --onefile --name "HA Battery Monitor" --add-data "pics/author.png;pics" src/main.py
 ```
 
 Once the build completes, you will find the resulting

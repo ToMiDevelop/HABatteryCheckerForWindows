@@ -47,13 +47,13 @@ class InitialSeed:
                                     date = finalDate
                                 )
                                 entries.append(entry)
-                                self.hadbData.addBatteryPercentEntries(entries)
                     else:
                         print(f"No history available for {entity_id}.")
                 else:
                     print(f"No history available for {entity_id}.")
             except Exception as e:
                 print(f"Error while fetching history for {entity_id}: {e}")
+        self.hadbData.addBatteryPercentEntries(entries)
 
     def seedBatteryTypes(self):
         for name, entity_id in self.devicesBatteryTypeList.items():
@@ -107,13 +107,13 @@ class InitialSeed:
                                     date = finalDate
                                 )
                                 entries.append(entry)
-                                self.hadbData.addLQIEntries(entries)
                     else:
                         print(f"No history available for {entity_id}.")
                 else:
                     print(f"No history available for {entity_id}.")
             except Exception as e:
                 print(f"Error while fetching history for {entity_id}: {e}")
+        self.hadbData.addLQIEntries(entries)
 
     def seedRSSIValues(self):
         entries: list[_RSSIClass] = []
@@ -143,10 +143,10 @@ class InitialSeed:
                                     date = finalDate
                                 )
                                 entries.append(entry)
-                                self.hadbData.addRSSIEntries(entries)
                     else:
                         print(f"No history available for {entity_id}.")
                 else:
                     print(f"No history available for {entity_id}.")
             except Exception as e:
                 print(f"Error while fetching history for {entity_id}: {e}")
+        self.hadbData.addRSSIEntries(entries)
