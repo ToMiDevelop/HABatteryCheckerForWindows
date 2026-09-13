@@ -15,7 +15,16 @@ dist/
 *.spec
 
 # PyCharm specific
-.ida/
+.idea/
+/.idea/vcs.xml
+/.idea/inspectionProfiles/Project_Default.xml
+/.idea/inspectionProfiles/profiles_settings.xml
+/.idea/modules.xml
+/.idea/misc.xml
+/.idea/micropython-tools-settings.xml
+/.idea/dbnavigator.xml
+/.idea/Baterie HA.iml
+/.idea/.gitignore
 
 # Misc development helpers
 misc/
