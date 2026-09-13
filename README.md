@@ -30,7 +30,7 @@ All screenshots are taken with the current Polish version of the ui.
 
 [![Example AI report – part 2](https://github.com/ToMiDevelop/HABatteryCheckerForWindows/raw/main/pics/report2.png)](/ToMiDevelop/HABatteryCheckerForWindows/blob/main/pics/report2.png)
 
-# System toasts
+### System toasts
 
 [![Example toast notifications](https://github.com/ToMiDevelop/HABatteryCheckerForWindows/raw/main/pics/toasts.png)](/ToMiDevelop/HABatteryCheckerForWindows/blob/main/pics/toasts.png)
 
