@@ -28,3 +28,7 @@ dist/
 
 # Misc development helpers
 misc/
+
+# App tesing folders
+/src/data
+/src/reports
