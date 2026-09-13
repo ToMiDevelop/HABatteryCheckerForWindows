@@ -1,78 +1,99 @@
-# Home Assistant Batteries Monitor
+# Home Assistant Battery Monitor
 
-## Brief description
+## Overview
 
-This an application designed to monitor and provide in systems
-toast messages the detailed information about battery states of your chosen
-Home Assistant entities. Moreover the application provides detailed reports about battery life
-provided by a LLM - Gemini from Google. The operation is very straightforward. Just launch the app - fill in the info
-required in the first run config window and there you go. The App will launch itself from autostart at every login
-and provide simplified battery info toasts with a detailed AI report showing as a nicely styled html (in a popping up
-simple webview window).
+This is a Windows application that monitors the battery levels of your chosen
+Home Assistant entities and displays the information as native Windows toast
+notifications. In addition, the application generates a detailed battery
+health report powered by an LLM (Google Gemini), based on the historical data
+collected over time.
+
+Usage is straightforward: launch the app, fill in the required information in
+the first-run configuration window, and you're done. The application
+registers itself to launch automatically at every login and will keep
+delivering battery status toasts along with a nicely styled AI-generated
+report, shown in a popup webview window.
 
 ## Screenshots
 
-![Config window](./pics/config.png)
+All screenshots are taken with the current Polish version of the ui.
 
-![Example AI Report - part 1](./pics/report1.png)
+### Configuration window - first run wizard
 
-![Example AI Report - part 2](./pics/report2.png)
+[![Configuration window](https://github.com/ToMiDevelop/HABatteryCheckerForWindows/raw/main/pics/config.png)](/ToMiDevelop/HABatteryCheckerForWindows/blob/main/pics/config.png)
 
-![Example toasts](./pics/toasts.png)
+### Popup report window
 
-## OS and programming language
+[![Example AI report – part 1](https://github.com/ToMiDevelop/HABatteryCheckerForWindows/raw/main/pics/report1.png)](/ToMiDevelop/HABatteryCheckerForWindows/blob/main/pics/report1.png)
 
-This application is written in Python exclusively for Windows 11.
-It uses on the code level invoking of some CMD commands.
+### Popup report window
+
+[![Example AI report – part 2](https://github.com/ToMiDevelop/HABatteryCheckerForWindows/raw/main/pics/report2.png)](/ToMiDevelop/HABatteryCheckerForWindows/blob/main/pics/report2.png)
+
+# System toasts
+
+[![Example toast notifications](https://github.com/ToMiDevelop/HABatteryCheckerForWindows/raw/main/pics/toasts.png)](/ToMiDevelop/HABatteryCheckerForWindows/blob/main/pics/toasts.png)
+
+## Operating system and programming language
+
+This application is written in Python and is intended exclusively for
+Windows 11. At the code level, it relies on invoking certain Windows shell
+commands.
 
 ## Source code structure
 
-You can find this application's source code in ***src*** folder. It contains a series of files:
+The application's source code is located in the **`src`** folder and consists
+of the following files:
 
-- ***main.py*** - the main launchable script
-- ***configwindow.py*** - handles the config window
-- ***winprocess.py*** - handles adding app to windows scheduler (also removing the app if needed tor tests)
-- ***database.py*** - handles connection with local sqlite db file and basic db operations
-- ***devices.py*** - to be filled in by the user before producing a Windows executable - handles device names and
-unique entity ids'.
-- ***firstrun.py*** - handles app first run actions
-- ***normalrun.py*** - handles ordinary (not first) run operations
-- ***homeassistant.py*** - handles retrieving data from HA API
-- ***messages.py*** - holds message strings to be displayed in GUI - currently only in polish
-- ***mytoasts.py*** - operates custom Windows toast messages
-- ***reporter.py*** - handles extracting data from Gemini responses
-- ***reportsgui.py*** - handles showing Gemini reports data in a nice webview window as a styled html page
+- **`main.py`** – the main entry point of the application
+- **`configwindow.py`** – handles the first-run configuration window
+- **`winprocess.py`** – manages adding the application to Windows autostart
+  (and removing it, for testing purposes)
+- **`database.py`** – manages the connection to the local SQLite database and
+  basic database operations
+- **`devices.py`** – to be edited by the user before building the Windows
+  executable; defines device names and their corresponding Home Assistant
+  entity IDs
+- **`firstrun.py`** – handles the application's first-run logic
+- **`normalrun.py`** – handles regular (non-first) run logic
+- **`homeassistant.py`** – handles data retrieval from the Home Assistant API
+- **`messages.py`** – holds UI and prompt strings; currently available in
+  Polish only
+- **`mytoastspl.py`** – manages custom Windows toast notifications
+- **`ai.py`** – handles communication with the Gemini API
+- **`reporter.py`** – converts the Gemini response into a styled HTML report
+- **`reportsgui.py`** – displays the generated report in a webview window
 
-There is also ***pics** folder containing a picture of the projects author - needed for the initial config window
-and must be kept next to source scripts or the created ***.exe*** file.
+The **`pics`** folder contains the application author's avatar image, used in
+the initial configuration window.
 
-## Application logic schema
+## Application logic overview
 
 ```mermaid
 graph TD
 Start((Application start))
 Stop((Application stop))
-TaskOn[Add autostart system task]
-TaskOff[Remove scheduled system task]
-ConstructRequest[Construct HTTP request]
+TaskOn[Register autostart entry]
+TaskOff[Remove autostart entry]
+ConstructRequest[Build HTTP request]
 Api(Home Assistant API)
 BatUnav{Is battery unavailable?};
 Low@{shape: lean-r, label: "Low battery toast"}
-Full@{shape: lean-r, label: "Battery state toast"}
+Full@{shape: lean-r, label: "Battery status toast"}
 Empty@{shape: lean-r, label: "Empty battery toast"}
-Zero{Is battery = 0}
+Zero{Is battery = 0?}
 Threshold{Is battery <= threshold?}
 Loop[Start main loop]
-Gemini@{shape: lean-r, label: 'Create and show Gemini report - from data saved in local DB'}
-LocalDB[Save JSON data to local sqlite DB]
-subgraph start [1. HA API call phase]
+Gemini@{shape: lean-r, label: "Generate and display Gemini report from data stored in the local database"}
+LocalDB[Save JSON response to the local SQLite database]
+subgraph start [1. Home Assistant API call phase]
     Start --> TaskOn
     TaskOn --> ConstructRequest
-    ConstructRequest -->|HTTP Request| Api
-    Api -->|JSON Response| LocalDB
+    ConstructRequest -->|HTTP request| Api
+    Api -->|JSON response| LocalDB
     LocalDB --> Loop
 end
-subgraph for [2. For each device entity in JSON Response]
+subgraph for [2. For each device entity in the JSON response]
     Loop --> BatUnav
     BatUnav -->|YES| Empty
     BatUnav -->|NO| Zero
@@ -84,203 +105,259 @@ subgraph for [2. For each device entity in JSON Response]
     Low --> Gemini
     Full --> Gemini
 end
-subgraph optional [3.1. Optional system scheduled task removal]
+subgraph optional [3.1 Optional autostart entry removal]
     Gemini -.-> TaskOff
 end
-subgraph normal [3.2 Normal application halt]
+subgraph normal [3.2 Normal application shutdown]
     TaskOff -.-> Stop
     Gemini --> Stop
 end
 ```
-### Notes on scheduled system task
 
-Phase ***3.1*** is completely optional. Is is intended to be used only for testing purposes.
-To enable this phase uncomment this
-```commandline
+### Notes on the autostart mechanism
+
+The application registers itself for autostart through the Windows Task
+Scheduler, using the `pywin32` COM API (`Schedule.Service`). A task is
+created to run the executable at user logon, using the current user's
+context — no administrator privileges are required.
+
+This registration step runs on every application launch and always updates
+the task's target path to the executable's current location. This means
+that if you move the `.exe` file to a different folder, the scheduled task
+is automatically corrected the next time you run the application manually —
+there is no stale, broken autostart entry to clean up.
+
+Removing the scheduled task is optional and intended for testing purposes
+only. To enable automatic removal on application exit, uncomment the
+following line in `main.py`:
+
+```python
 # winprocess.remove_autostart()
 ```
-line in ***main.py*** script.
 
-## Required Python modules imports
+## Required Python packages
 
-- requests
-- windows_toasts
-- urllib3
-- sys
-- subprocess
-- os
-- json
-- sqlalchemy
-- google
-- google.genai
-- dataclasses
-- pathlib
-- customtkinter
-- dotenv
-- datetime
-- typing
-- markdown
-- webview
+All required packages are pinned in the [`requirements.txt`](requirements.txt)
+file in the root of this repository. Install them all at once, inside your
+virtual environment, with:
 
-## How to customize the app for your needs
+```
+pip install -r requirements.txt
+```
 
-To customize the application to your specific situation please edit ***devices.py*** and ***main.py*** script. 
+The table below lists the same packages individually, together with the
+module names used to import them in the source code — useful if you only
+need to install a subset of them, or if you're troubleshooting a missing
+dependency (module names used in `import` statements are not always
+identical to their PyPI package names).
+
+| Import name(s)                     | Install with `pip install ...`   | Notes                                   |
+|-------------------------------------|-----------------------------------|------------------------------------------|
+| `requests`                          | `requests`                        |                                          |
+| `windows_toasts`                    | `windows-toasts`                  |                                          |
+| `urllib3`                           | `urllib3`                         | Typically installed as a dependency of `requests` |
+| `sqlalchemy`                        | `SQLAlchemy`                      |                                          |
+| `google`, `google.genai`            | `google-genai`                    |                                          |
+| `customtkinter`                     | `customtkinter`                   |                                          |
+| `PIL` (used in `configwindow.py`)   | `Pillow`                          |                                          |
+| `dotenv`                            | `python-dotenv`                   |                                          |
+| `markdown`                          | `Markdown`                        |                                          |
+| `webview`                           | `pywebview`                       |                                          |
+| `win32com`                          | `pywin32`                         | Used for Task Scheduler autostart registration |
+
+The following modules are part of the Python standard library and do **not**
+require a separate `pip install`:
+
+`sys`, `subprocess`, `os`, `json`, `dataclasses`, `pathlib`, `datetime`,
+`typing`.
+
+## Customizing the application for your setup
+
+To adapt the application to your own Home Assistant instance, edit the
+`devices.py` script.
 
 ### Observed devices
 
-To provide the information about observed devices modify ***devices.py*** file as shown bellow. 
+#### Battery percentage
 
-#### Batteries percent
-
-```commandline
+```python
 devicesBatteryValueList = {
     "Device 1 name": "battery sensor entity id for device 1",
     "Device 2 name": "battery sensor entity id for device 2",
     "Device 3 name": "battery sensor entity id for device 3",
-    # you can put as many devices you want to this dictionary
+    # add as many devices as you need
     "Device n name": "battery sensor entity id for device n"
 }
 ```
-Just construct your own dictionary, only the entity ids' need to be taken from HA.
-Device name can be anything you like. Look at the example bellow.
 
-#### Batteries percent example
+Build your own dictionary — only the entity IDs need to be taken from Home
+Assistant. Device names can be anything you like. See the example below.
 
-```commandline
+#### Battery percentage – example
+
+```python
 devicesBatteryValueList = {
-    "Termometr w sypialni": "sensor.termometr_duzy_sypialnia_bateria",
-    "Termometr w salonie": "sensor.termometr_duzy_salon_bateria",
-    "Termometr od podwórka": "sensor.termometr_podworko_bateria",
-    "Termometr od drogi": "sensor.termometr_droga_bateria"
+    "Bedroom thermometer": "sensor.bedroom_thermometer_battery",
+    "Living room thermometer": "sensor.living_room_thermometer_battery",
+    "Backyard thermometer": "sensor.backyard_thermometer_battery",
+    "Roadside thermometer": "sensor.roadside_thermometer_battery"
 }
 ```
 
-#### Batteries types
+#### Battery type
 
-```commandline
+```python
 devicesBatteryTypeList = {
-    "Device 1 name": "battery sensor entity id for device 1",
-    "Device 2 name": "battery sensor entity id for device 2",
-    "Device 3 name": "battery sensor entity id for device 3",
-    # you can put as many devices you want to this dictionary
-    "Device n name": "battery sensor entity id for device n"
+    "Device 1 name": "battery type sensor entity id for device 1",
+    "Device 2 name": "battery type sensor entity id for device 2",
+    "Device 3 name": "battery type sensor entity id for device 3",
+    # add as many devices as you need
+    "Device n name": "battery type sensor entity id for device n"
 }
 ```
 
-#### Batteries types example
+#### Battery type – example
 
-```commandline
+```python
 devicesBatteryTypeList = {
-    "Termometr w sypialni": "sensor.termometr_duzy_sypialnia_battery_type",
-    "Termometr w salonie": "sensor.termometr_duzy_salon_battery_type",
-    "Termometr od podwórka": "sensor.termometr_podworko_battery_type",
-    "Termometr od drogi": "sensor.termometr_droga_battery_type"
+    "Bedroom thermometer": "sensor.bedroom_thermometer_battery_type",
+    "Living room thermometer": "sensor.living_room_thermometer_battery_type",
+    "Backyard thermometer": "sensor.backyard_thermometer_battery_type",
+    "Roadside thermometer": "sensor.roadside_thermometer_battery_type"
 }
 ```
 
-#### Devices LQI values
+#### Device LQI values
 
-```commandline
+```python
 devicesLQIList = {
-    "Device 1 name": "battery sensor entity id for device 1",
-    "Device 2 name": "battery sensor entity id for device 2",
-    "Device 3 name": "battery sensor entity id for device 3",
-    # you can put as many devices you want to this dictionary
-    "Device n name": "battery sensor entity id for device n"
+    "Device 1 name": "LQI sensor entity id for device 1",
+    "Device 2 name": "LQI sensor entity id for device 2",
+    "Device 3 name": "LQI sensor entity id for device 3",
+    # add as many devices as you need
+    "Device n name": "LQI sensor entity id for device n"
 }
 ```
 
-#### Devices LQI values example
+#### Device LQI values – example
 
-```commandline
+```python
 devicesLQIList = {
-    "Termometr w sypialni": "sensor.sonoff_snzb_02d_lqi_2",
-    "Termometr w salonie": "sensor.sonoff_snzb_02d_lqi",
-    "Termometr od podwórka": "sensor.termometr_podworko_lqi",
-    "Termometr od drogi": "sensor.termometr_droga_lqi"
+    "Bedroom thermometer": "sensor.sonoff_snzb_02d_lqi_2",
+    "Living room thermometer": "sensor.sonoff_snzb_02d_lqi",
+    "Backyard thermometer": "sensor.backyard_thermometer_lqi",
+    "Roadside thermometer": "sensor.roadside_thermometer_lqi"
 }
 ```
 
-#### Devices LSSI values
+#### Device RSSI values
 
-```commandline
-devicesLSSIList = {
-    "Device 1 name": "battery sensor entity id for device 1",
-    "Device 2 name": "battery sensor entity id for device 2",
-    "Device 3 name": "battery sensor entity id for device 3",
-    # you can put as many devices you want to this dictionary
-    "Device n name": "battery sensor entity id for device n"
-}
-```
-
-#### Devices LSSI values example
-
-```commandline
+```python
 devicesRSSIList = {
-    "Termometr w sypialni": "sensor.sonoff_snzb_02d_rssi_2",
-    "Termometr w salonie": "sensor.sonoff_snzb_02d_rssi",
-    "Termometr od podwórka": "sensor.termometr_podworko_rssi",
-    "Termometr od drogi": "sensor.termometr_droga_rssi"
+    "Device 1 name": "RSSI sensor entity id for device 1",
+    "Device 2 name": "RSSI sensor entity id for device 2",
+    "Device 3 name": "RSSI sensor entity id for device 3",
+    # add as many devices as you need
+    "Device n name": "RSSI sensor entity id for device n"
+}
+```
+
+#### Device RSSI values – example
+
+```python
+devicesRSSIList = {
+    "Bedroom thermometer": "sensor.sonoff_snzb_02d_rssi_2",
+    "Living room thermometer": "sensor.sonoff_snzb_02d_rssi",
+    "Backyard thermometer": "sensor.backyard_thermometer_rssi",
+    "Roadside thermometer": "sensor.roadside_thermometer_rssi"
 }
 ```
 
 #### Battery threshold
 
-```commandline
+```python
 batteryThreshold = IntegerNumber
 ```
-Battery threshold is used to cut battery percent values - if value lower than threshold then understood as very low.
 
+The battery threshold defines the cutoff percentage below which a battery
+level is treated as critically low.
 
-#### Battery threshold example
+#### Battery threshold – example
 
-```commandline
+```python
 batteryThreshold = 10
 ```
 
-## Notice on assumed OS language
+## Security considerations
 
-This application is designed exclusively to parse cmd commands (in ***winprocess.py***)
-with polish coding - you may need to adjust ***setup_autostart*** ***remove_autostart***
-to your specific locale needs.
+This application makes two deliberate security trade-offs, aimed at a
+single-user, home-lab environment. Please review them before using the app
+in any other context:
 
-## Packaging the application as a standalone Windows executable (.exe)
+- **Unencrypted credentials file.** The Home Assistant long-lived access
+  token and the Gemini API key are stored in plain text in
+  `data/secrets.env`. This file is not encrypted at rest. Anyone with file
+  system access to the machine (or to a backup of it) can read these
+  credentials. Do not use this application on a shared or multi-user
+  computer, and make sure the machine itself is adequately secured (disk
+  encryption, user account access controls, etc.).
+- **Disabled SSL certificate verification.** All requests to the Home
+  Assistant REST API are made with certificate verification turned off
+  (`verify=False`). This is intentional, since Home Assistant instances in
+  home-lab setups commonly use self-signed certificates. However, it also
+  means the application will not detect a man-in-the-middle attack on the
+  connection to your Home Assistant instance. Only use this application over
+  a trusted local network, and avoid exposing your Home Assistant instance
+  to the public internet without a properly signed certificate and a
+  reverse proxy.
 
-You can build a standalone `.exe` file that runs natively on Windows
-without requiring a Python installation.
+## Building a standalone Windows executable (.exe)
+
+You can build a standalone `.exe` file that runs natively on Windows without
+requiring a separate Python installation.
 
 ### Prerequisites
 
-Install ***pyinstaller*** inside your virtual environment:
+`pyinstaller` is already included in `requirements.txt`, so if you've
+followed the installation step above, it is already available in your
+virtual environment. Otherwise, install it separately with:
 
-```shell
+```
 python -m pip install pyinstaller
 ```
 
 ### Build command
 
-After installing pyinstaller please run the following command from the directory with the source
-python scripts:
+Run the following command from the directory containing the Python source
+files:
 
-```shell
-pyinstaller --noconsole --onefile --name "HA Battery Monitor" .\batteries.py
 ```
-You will find a freshly created ***dist*** folder with ***HA Battery Monitor.exe*** file.
-The freshly created exe application can freely moved to a place of your desire. Then launch it once
-and (as long as you do not change it's location) it will be automatically relaunched by Windows.
+pyinstaller --noconsole --onefile --name "HA Battery Monitor" src/main.py
+```
 
-### Options explanation
+Once the build completes, you will find the resulting
+`HA Battery Monitor.exe` file inside the newly created `dist` folder. The
+executable can be freely moved to a location of your choice. Launch it once,
+and — as long as you do not move it afterwards — Windows will relaunch it
+automatically on every subsequent login.
 
-- `--onefile`: Bundles the entire application and its dependencies into a single, standalone .exe file.
-- `--noconsole`: Hides the black CMD terminal window, allowing the script to run seamlessly in the background 
-and display native Windows Toasts.
-- `--name`: Sets the output executable name.
+### Build options explained
+
+- `--onefile` – bundles the entire application and its dependencies into a
+  single, standalone `.exe` file.
+- `--noconsole` – hides the console window, allowing the application to run
+  in the background and display native Windows toast notifications only.
+- `--name` – sets the name of the output executable.
 
 ## Notice on Python virtual environments
 
-This project assumes you are familiar with Python virtual environments (`venv`)
-and best practices regarding dependency isolation. If you are new to virtual environments
-or need a refresher on how to set them up, check out the
-official [Python Virtual Environments Tutorial](https://docs.python.org/3/tutorial/venv.html)
-or this beginner-friendly guide
-on [Real Python](https://realpython.com/python-virtual-environments-a-primer/).
+This project assumes familiarity with Python virtual environments (`venv`)
+and best practices around dependency isolation. If you are new to virtual
+environments, check out the official
+[Python Virtual Environments tutorial](https://docs.python.org/3/tutorial/venv.html)
+or this beginner-friendly guide on
+[Real Python](https://realpython.com/python-virtual-environments-a-primer/).
+
+## License
+
+Distributed under the GPL-3.0 License. See `LICENSE` for details.
