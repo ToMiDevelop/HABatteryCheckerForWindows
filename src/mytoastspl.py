@@ -25,7 +25,7 @@ class MyToastsPL:
         toast = Toast()
         toast.text_fields=[
             f"{name}",
-            f"{toastsMessage["plEmptyBattery"]}%"
+            f"{toastsMessage["plEmptyBattery"]}"
         ]
         toast.group = entity_id
         toast.duration = ToastDuration.Long
