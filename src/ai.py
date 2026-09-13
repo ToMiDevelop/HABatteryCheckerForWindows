@@ -12,7 +12,7 @@ from database import *
 from messages import geminiPrompts
 
 class Gemini:
-    def __init__(self):
+    def __init__(self, batteryThreshold : int):
         # Load Gemini API Token
         self.geminiToken = os.getenv("GEMINI_API_KEY")
         # Load Gemini model name
@@ -26,6 +26,7 @@ class Gemini:
         self.batteryPercentList = self.db.getLatestBatteryPercentEntries()
         self.lqiList = self.db.getLatestLQIEntries()
         self.rssiList = self.db.getLatestRSSIEntries()
+        self.batteryThreshold = batteryThreshold
 
         # set payload data
         self.payloadData = {
@@ -36,7 +37,7 @@ class Gemini:
         self.jsonData = json.dumps(self.payloadData, ensure_ascii=False, indent=4, default=str)
 
         # define precise system instructions
-        self.system_instruction = geminiPrompts["plSystemPrompt"] # You can add a system prompt in other language - messages.py
+        self.system_instruction = geminiPrompts["plSystemPrompt"].replace("THRESHOLD_MARKER", str(self.batteryThreshold)) # You can add a system prompt in other language - messages.py
         self.promptStart = geminiPrompts["plPromptStart"] # You can add a prompt start in other language - messages.py
         self.promptFull = self.promptStart + self.jsonData
 
