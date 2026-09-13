@@ -86,7 +86,7 @@ class ConfigWindow(ctk.CTk):
         self.title(f"{configWindow["plTitle"]}")
 
         # window geometry
-        self.geometry("650x745")
+        self.geometry("650x755")
         self.resizable(False, False)
 
         # --- Main Header Section ---
