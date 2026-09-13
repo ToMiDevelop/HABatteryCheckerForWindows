@@ -1,21 +1,24 @@
 # custom imports
 
-from devices import devicesBatteryValueList, devicesBatteryTypeList, devicesLQIList, devicesRSSIList, batteryThreshold
 from database import _BatteryPercentClass, _LQIClass, _RSSIClass, HADBData
 from homeassistant import HAData
 from mytoastspl import MyToastsPL
 from datetime import datetime
+from spreadsheetprocessor import ExcelProcessor
 
 class NormalRun:
     def __init__(self):
-        self.devicesBatteryValueList = devicesBatteryValueList
-        self.devicesBatteryTypeList = devicesBatteryTypeList
-        self.devicesLQIList = devicesLQIList
-        self.devicesRSSIList = devicesRSSIList
+        self.excelProcessor = ExcelProcessor()
+        self.devicesData = self.excelProcessor.processSheets()
+        self.devicesBatteryValueList = self.devicesData["devicesBatteryValueList"]
+        self.devicesBatteryTypeList = self.devicesData["devicesBatteryTypeList"]
+        self.devicesLQIList = self.devicesData["devicesLQIList"]
+        self.devicesRSSIList = self.devicesData["devicesRSSIList"]
         self.haData = HAData()
         self.hadbData = HADBData()
         self.myToasts = MyToastsPL()
-        self.batteryThreshold = batteryThreshold
+        self.thresholdDict = self.devicesData["batteryThreshold"]
+        self.batteryThreshold = self.thresholdDict["batteryThreshold"]
 
     def normalBatteryValueUpdate(self):
         for name, entity_id in self.devicesBatteryValueList.items():
@@ -201,12 +204,11 @@ class NormalRun:
             except Exception as e:
                 print(f"Error while fetching data for {entity_id}: {e}")
 
-    @staticmethod
-    def geminiReport() -> None:
+    def geminiReport(self) -> None:
         from ai import Gemini
         from reporter import Reporter
         from reportsgui import ReportWindow
-        gemini = Gemini()
+        gemini = Gemini(self.batteryThreshold)
         htmlReporter = Reporter(gemini.askGemini())
         htmlPath = htmlReporter.saveAnalysisToHml()
         reportWindow = ReportWindow(htmlPath)

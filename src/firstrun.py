@@ -4,18 +4,21 @@ from datetime import datetime, timedelta
 
 # custom imports
 
-from devices import devicesBatteryValueList, devicesBatteryTypeList, devicesLQIList, devicesRSSIList
+# from devices import devicesBatteryValueList, devicesBatteryTypeList, devicesLQIList, devicesRSSIList
 from database import HADBData, _BatteryPercentClass, _BatteryTypeClass, _LQIClass, _RSSIClass
 from homeassistant import HAData
+from spreadsheetprocessor import ExcelProcessor
 
 # classes definitions
 
 class InitialSeed:
     def __init__(self):
-        self.devicesBatteryValueList = devicesBatteryValueList
-        self.devicesBatteryTypeList = devicesBatteryTypeList
-        self.devicesLQIList = devicesLQIList
-        self.devicesRSSIList = devicesRSSIList
+        self.excelProcessor = ExcelProcessor()
+        self.devicesData = self.excelProcessor.processSheets()
+        self.devicesBatteryValueList = self.devicesData["devicesBatteryValueList"]
+        self.devicesBatteryTypeList = self.devicesData["devicesBatteryTypeList"]
+        self.devicesLQIList = self.devicesData["devicesLQIList"]
+        self.devicesRSSIList = self.devicesData["devicesRSSIList"]
         self.haData = HAData()
         self.hadbData = HADBData()
 
