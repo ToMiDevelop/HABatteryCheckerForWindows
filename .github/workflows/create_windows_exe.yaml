@@ -41,7 +41,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v7
         with:
-          name: Windows-exe
+          name: Windows executable
           path: dist/HA Battery Monitor.exe
 
       - name: Create GitHub Release
@@ -50,7 +50,8 @@ jobs:
           tag_name: ${{ env.TAG_NAME }}
           name: "Release ${{ env.TAG_NAME }}"
           body: |
-            Automatyczne wydanie aplikacji po scaleniu zmian z gałęzi `dev` do `main`.
+            Automatically created app release - after merging latest changes to `main` branch.
+            Download and enjoy the app!
           files: |
             dist/HA Battery Monitor.exe
         env:
