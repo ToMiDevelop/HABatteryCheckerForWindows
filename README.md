@@ -350,6 +350,7 @@ automatically on every subsequent login.
 - `--noconsole` – hides the console window, allowing the application to run
   in the background and display native Windows toast notifications only.
 - `--name` – sets the name of the output executable.
+- `--add-data` - adds files and folder, which need to be a part of created .exe
 
 ## Notice on Python virtual environments
 
