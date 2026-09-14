@@ -12,7 +12,7 @@ dist/
 #   Usually these files are written by a python script from a template
 #   before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
-*.spec
+HA Battery Monitor.spec
 
 # PyCharm specific
 .idea/
