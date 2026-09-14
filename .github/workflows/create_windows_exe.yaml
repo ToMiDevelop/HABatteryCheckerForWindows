@@ -7,15 +7,19 @@ on:
 
 jobs:
   build:
-    # Warunek sprawdza, czy commit jest mergem i czy w jego wiadomości pojawia się nazwa gałęzi 'dev'
-    if: contains(github.event.head_commit.message, 'Merge') && contains(github.event.head_commit.message, 'dev')
+    # Uruchamiaj tylko wtedy, gdy commit na main pochodzi ze scalenia z dev
+    if: contains(github.event.head_commit.message, 'Merge pull request') && contains(github.event.head_commit.message, 'dev')
     runs-on: windows-latest
+
+    permissions:
+      contents: write # Wymagane uprawnienie do tworzenia wydań (Releases)
+
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.14'
 
@@ -28,8 +32,26 @@ jobs:
         run: |
           pyinstaller pyinstaller.spec
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v5
+      - name: Generate Release Tag
+        id: tag
+        run: |
+          # Tworzy unikalny tag w formacie v1.0.<build_number>
+          echo "TAG_NAME=v1.0.${{ github.run_number }}" >> $env:GITHUB_ENV
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v7
         with:
-          name: HA_Battery_Monitor
+          name: Windows-exe
           path: dist/HA Battery Monitor.exe
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ env.TAG_NAME }}
+          name: "Release ${{ env.TAG_NAME }}"
+          body: |
+            Automatyczne wydanie aplikacji po scaleniu zmian z gałęzi `dev` do `main`.
+          files: |
+            dist/HA Battery Monitor.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
