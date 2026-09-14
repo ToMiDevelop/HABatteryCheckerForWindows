@@ -63,9 +63,10 @@ of the following files:
 - **`ai.py`** – handles communication with the Gemini API
 - **`reporter.py`** – converts the Gemini response into a styled HTML report
 - **`reportsgui.py`** – displays the generated report in a webview window
+- **`spreadsheetprocessor.py`** – handles processing of the devices and entities spreadsheet
 
 The **`pics`** folder contains the application author's avatar image, used in
-the initial configuration window.
+the initial configuration window and must not be removed.
 
 ## Application usage and running logic overview
 
@@ -99,41 +100,41 @@ The spreadsheet should contain only 5 sheets with EXACTLY these names:
 
 | Device name   | Device battery % value entity id |
 |---------------|----------------------------------|
-| Devoce 1 name | Device 1 battery value entity id |
-| Devoce 2 name | Device 2 battery value entity id |
-| Devoce 3 name | Device 3 battery value entity id |
+| Device 1 name | Device 1 battery value entity id |
+| Device 2 name | Device 2 battery value entity id |
+| Device 3 name | Device 3 battery value entity id |
 | ...           | ...                              |
-| Devoce n name | Device n battery value entity id |
+| Device n name | Device n battery value entity id |
 
 ##### 2. `devicesBatteryTypeList`
 
 | Device name   | Device battery type entity id         |
 |---------------|---------------------------------------|
-| Devoce 1 name | Device 1 battery type value entity id |
-| Devoce 2 name | Device 2 battery type value entity id |
-| Devoce 3 name | Device 3 battery type value entity id |
+| Device 1 name | Device 1 battery type value entity id |
+| Device 2 name | Device 2 battery type value entity id |
+| Device 3 name | Device 3 battery type value entity id |
 | ...           | ...                                   |
-| Devoce n name | Device n battery type value entity id |
+| Device n name | Device n battery type value entity id |
 
 ##### 3. `devicesLQIList`
 
 | Device name   | Device LQI entity id   |
 |---------------|------------------------|
-| Devoce 1 name | Device 1 LQI entity id |
-| Devoce 2 name | Device 2 LQI entity id |
-| Devoce 3 name | Device 3 LQI entity id |
+| Device 1 name | Device 1 LQI entity id |
+| Device 2 name | Device 2 LQI entity id |
+| Device 3 name | Device 3 LQI entity id |
 | ...           | ...                    |
-| Devoce n name | Device n LQI entity id |
+| Device n name | Device n LQI entity id |
 
 ##### 4. `devicesRSSIList`
 
 | Device name   | Device RSSI entity id   |
 |---------------|-------------------------|
-| Devoce 1 name | Device 1 RSSI entity id |
-| Devoce 2 name | Device 2 RSSI entity id |
-| Devoce 3 name | Device 3 RSSIentity id  |
+| Device 1 name | Device 1 RSSI entity id |
+| Device 2 name | Device 2 RSSI entity id |
+| Device 3 name | Device 3 RSSIentity id  |
 | ...           | ...                     |
-| Devoce n name | Device n RSSI entity id |
+| Devoie n name | Device n RSSI entity id |
 
 ##### 5. `batteryThreshold`
 
@@ -158,7 +159,7 @@ Just download the latest release and open the `.exe` file. Remember to save in s
 ```mermaid
 graph TD
 HAApi@{shape: lean-l, label: "Prepare Home Assistant URL and long-lived access token"}
-GeminiApi@{shape: lean-l, label: "Prepare Gemini API key"}
+GeminiApi@{shape: lean-l, label: "Prepare Gemini API key and LLM name"}
 Excel@{shape: lean-l, label: "Prepare HA devices configuration spreadsheet"}
 Start((Application start))
 Stop((Application stop))
@@ -247,20 +248,20 @@ need to install a subset of them, or if you're troubleshooting a missing
 dependency (module names used in `import` statements are not always
 identical to their PyPI package names).
 
-| Import name(s)                    | Install with `pip install ...` | Notes                                             |
-|-----------------------------------|--------------------------------|---------------------------------------------------|
-| `requests`                        | `requests`                     |                                                   |
-| `windows_toasts`                  | `windows-toasts`               |                                                   |
-| `urllib3`                         | `urllib3`                      | Typically installed as a dependency of `requests` |
-| `sqlalchemy`                      | `SQLAlchemy`                   |                                                   |
-| `google`, `google.genai`          | `google-genai`                 |                                                   |
-| `customtkinter`                   | `customtkinter`                |                                                   |
-| `PIL` (used in `configwindow.py`) | `Pillow`                       |                                                   |
-| `dotenv`                          | `python-dotenv`                |                                                   |
-| `markdown`                        | `Markdown`                     |                                                   |
-| `webview`                         | `pywebview`                    |                                                   |
-| `win32com`                        | `pywin32`                      | Used for Task Scheduler autostart registration    |
-| `openpyxl`                        | `openpyxl`                     | Used to process Excel spreadsheets                |
+| Import name(s)           | Install with `pip install ...` | Notes                                             |
+|--------------------------|--------------------------------|---------------------------------------------------|
+| `requests`               | `requests`                     |                                                   |
+| `windows_toasts`         | `windows-toasts`               |                                                   |
+| `urllib3`                | `urllib3`                      | Typically installed as a dependency of `requests` |
+| `sqlalchemy`             | `SQLAlchemy`                   |                                                   |
+| `google`, `google.genai` | `google-genai`                 |                                                   |
+| `customtkinter`          | `customtkinter`                |                                                   |
+| `PIL`                    | `Pillow`                       |                                                   |
+| `dotenv`                 | `python-dotenv`                |                                                   |
+| `markdown`               | `Markdown`                     |                                                   |
+| `webview`                | `pywebview`                    |                                                   |
+| `win32com`               | `pywin32`                      | Used for Task Scheduler autostart registration    |
+| `openpyxl`               | `openpyxl`                     | Used to process Excel spreadsheets                |
 
 The following modules are part of the Python standard library and do **not**
 require a separate `pip install`:
