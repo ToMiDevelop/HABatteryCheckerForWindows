@@ -1,10 +1,14 @@
 name: Package Application with PyInstaller
+
 on:
-  pull_request:
+  push:
     branches:
       - main
+
 jobs:
   build:
+    # Warunek sprawdza, czy commit jest mergem i czy w jego wiadomości pojawia się nazwa gałęzi 'dev'
+    if: contains(github.event.head_commit.message, 'Merge') && contains(github.event.head_commit.message, 'dev')
     runs-on: windows-latest
     steps:
       - name: Checkout repository
@@ -27,5 +31,5 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v5
         with:
-          name: Windows-exe
-          path: dist/windows.exe
+          name: HA_Battery_Monitor
+          path: dist/HA Battery Monitor.exe
